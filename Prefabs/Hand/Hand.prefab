@@ -651,8 +651,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6cdd5c17c4ca744ba91a8e877ac3aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handType: 0
+  handType: 2
   animationSpeed: 1
+  positionOffset: {x: 0, y: 0, z: 0}
+  positionOffsetAngles: {x: 0, y: 0, z: 0}
   pointerAnimationName: PointerAni
   pointerAnimationReverseName: PointerAniRev
   thumbAnimationName: ThumbAni
@@ -661,6 +663,7 @@ MonoBehaviour:
   graspAnimationReverseName: AnimateThreeRev
   pointThreshold: 0.5
   graspThreshold: 0.5
+  thumbThreshold: 0.5
   reverseThumbAnimation: 0
 --- !u!137 &137807646328626672
 SkinnedMeshRenderer:
