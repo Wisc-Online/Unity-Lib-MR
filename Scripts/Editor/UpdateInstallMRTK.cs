@@ -15,13 +15,13 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 
         const string MRTK_GITHUB_URL = "https://github.com/Microsoft/MixedRealityToolkit-Unity.git";
 
-        [MenuItem("FVTC/Learning Innovations/Mixed Reality/Install MRTK from GitHub")]
+        [MenuItem("Learning Innovations/Mixed Reality/Install MRTK from GitHub")]
         private static void UpdateInstallMRTK()
         {
             UpdateMRTK("HoloToolkit");
         }
 
-        [MenuItem("FVTC/Learning Innovations/Mixed Reality/Install MRTK from GitHub (include examples)")]
+        [MenuItem("Learning Innovations/Mixed Reality/Install MRTK from GitHub (include examples)")]
         private static void UpdateInstallMRTKWithExamples()
         {
             UpdateMRTK("HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
