@@ -1,9 +1,4 @@
-﻿using HoloToolkit.Unity.InputModule;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 
@@ -11,8 +6,6 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Input
 {
     public class InteractionManagerHandControllerInputSource : GameSingleton<InteractionManagerHandControllerInputSource>, IHandInputSource
     {
-      
-
         private void Start()
         {
             HandManager.Instance.RegisterSource(this);

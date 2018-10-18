@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using FVTC.LearningInnovations.Unity.Helpers;
+using FVTC.LearningInnovations.Unity.Editor;
 
 namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 {
