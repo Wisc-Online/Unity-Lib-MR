@@ -58,7 +58,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 
         private static void UpdateMRTK(params string[] folders)
         {
-            
+
 
             if (GitHelper.PromptUserToDownloadGitIfNotInstalled())
             {
@@ -68,6 +68,8 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
                 try
                 {
                     DirectoryInfo assetsDir = new DirectoryInfo(Application.dataPath);
+                    DirectoryInfo projectDir = assetsDir.Parent;
+
 
                     string gitExePath = GitHelper.GetGitPath();
 
@@ -98,6 +100,28 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
                                 mrtkSubDir.MoveTo(subDir.FullName);
                             }
                         }
+
+                        const string EXTERNAL_HOLOTOOLKIT = "External/HoloToolkit";
+
+                        DirectoryInfo mrtkExternalFolder = new DirectoryInfo(Path.Combine(tempDir.FullName, EXTERNAL_HOLOTOOLKIT));
+                        DirectoryInfo projectExternalFolder = new DirectoryInfo(Path.Combine(projectDir.FullName, EXTERNAL_HOLOTOOLKIT));
+
+
+                        if (mrtkExternalFolder.Exists)
+                        {
+                            if (projectExternalFolder.Exists)
+                            {
+                                Delete(projectExternalFolder);
+                            }
+
+                            if (!Directory.Exists(Path.Combine(projectDir.FullName, "External")))
+                            {
+                                Directory.CreateDirectory(Path.Combine(projectDir.FullName, "External"));
+                            }
+
+                            mrtkExternalFolder.MoveTo(projectExternalFolder.FullName);
+                        }
+
                     }
                     finally
                     {
