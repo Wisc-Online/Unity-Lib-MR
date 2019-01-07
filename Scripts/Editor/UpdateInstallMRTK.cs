@@ -16,7 +16,8 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 
         const string MRTK_GITHUB_URL = "https://github.com/Microsoft/MixedRealityToolkit-Unity.git";
         const string UNITY_LIB_MR_GITHUB_URL = "https://github.com/Wisc-Online/Unity-Lib-MR.git";
-
+        const string FVTC_LEARNING_INNOVATIONS_PROGRAMDATA_DIR_PATH = "FVTC\\LearningInnovations";
+        const string LOCAL_MRTK_REPO_FILE_NAME = "MixedRealityToolkit-Unity.git";
 
         [MenuItem("Learning Innovations/Mixed Reality/Update from GitHub")]
         private static void Update()
@@ -38,16 +39,28 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
         }
 
 
-        [MenuItem("Learning Innovations/Mixed Reality/Install MRTK from GitHub")]
-        private static void UpdateInstallMRTK()
+        [MenuItem("Learning Innovations/Mixed Reality/Install HoloToolkit from GitHub")]
+        private static void UpdateInstallHoloToolkit()
         {
-            UpdateMRTK("HoloToolkit");
+            UpdateMRTK("master", "HoloToolkit");
         }
 
-        [MenuItem("Learning Innovations/Mixed Reality/Install MRTK from GitHub (include examples)")]
-        private static void UpdateInstallMRTKWithExamples()
+        [MenuItem("Learning Innovations/Mixed Reality/Install HoloToolkit from GitHub (include examples)")]
+        private static void UpdateInstallHoloToolkitWithExamples()
         {
-            UpdateMRTK("HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
+            UpdateMRTK("master", "HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
+        }
+
+        [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub")]
+        private static void UpdateInstallMixedRealityToolkit()
+        {
+            UpdateMRTK("mrtk_release", "MixedRealityToolkit");
+        }
+
+        [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub (include examples)")]
+        private static void UpdateInstallMixedRealityToolkitWithExamples()
+        {
+            UpdateMRTK("mrtk_release", "MixedRealityToolkit", "MixedRealityToolkit-Examples");
         }
 
         const string CHECKING_OUT_PREFIX = "Checking out files: ";
@@ -56,92 +69,223 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 
         static readonly string[] PREFIXES = new string[] { CHECKING_OUT_PREFIX, RECEIVING_OBJECTS_PREFIX, RESOLVING_DELTAS_PREFIX };
 
-        private static void UpdateMRTK(params string[] folders)
+        private static void UpdateMRTK(string branch, params string[] folders)
         {
-
-
             if (GitHelper.PromptUserToDownloadGitIfNotInstalled())
             {
-                // create temp dir
-                DirectoryInfo tempDir = CreateNewTempDirectory();
+                string gitExePath = GitHelper.GetGitPath();
 
-                try
+                string programDataDir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+                string fvtcLIProgramDataDir = Path.Combine(programDataDir, FVTC_LEARNING_INNOVATIONS_PROGRAMDATA_DIR_PATH);
+
+                var fvtcDir = new DirectoryInfo(fvtcLIProgramDataDir);
+
+                if (!fvtcDir.Exists)
                 {
-                    DirectoryInfo assetsDir = new DirectoryInfo(Application.dataPath);
-                    DirectoryInfo projectDir = assetsDir.Parent;
-
-
-                    string gitExePath = GitHelper.GetGitPath();
-
-                    GitClone(gitExePath, MRTK_GITHUB_URL, tempDir.FullName);
-
-                    DirectoryInfo subDir;
-                    DirectoryInfo mrtkSubDir;
-
-                    try
-                    {
-
-                        for (int i = 0; i < folders.Length; ++i)
-                        {
-                            EditorUtility.DisplayProgressBar("Updating Folders", folders[i], (i + 1) / ((float)folders.Length));
-
-                            subDir = new DirectoryInfo(Path.Combine(assetsDir.FullName, folders[i]));
-                            mrtkSubDir = new DirectoryInfo(Path.Combine(tempDir.FullName, "Assets/" + folders[i]));
-
-                            if (mrtkSubDir.Exists)
-                            {
-                                if (subDir.Exists)
-                                {
-                                    // remove existing MRTK installation from assets
-                                    Delete(subDir);
-                                }
-
-                                // move from temp to assets
-                                mrtkSubDir.MoveTo(subDir.FullName);
-                            }
-                        }
-
-                        const string EXTERNAL_HOLOTOOLKIT = "External/HoloToolkit";
-
-                        DirectoryInfo mrtkExternalFolder = new DirectoryInfo(Path.Combine(tempDir.FullName, EXTERNAL_HOLOTOOLKIT));
-                        DirectoryInfo projectExternalFolder = new DirectoryInfo(Path.Combine(projectDir.FullName, EXTERNAL_HOLOTOOLKIT));
-
-
-                        if (mrtkExternalFolder.Exists)
-                        {
-                            if (projectExternalFolder.Exists)
-                            {
-                                Delete(projectExternalFolder);
-                            }
-
-                            if (!Directory.Exists(Path.Combine(projectDir.FullName, "External")))
-                            {
-                                Directory.CreateDirectory(Path.Combine(projectDir.FullName, "External"));
-                            }
-
-                            mrtkExternalFolder.MoveTo(projectExternalFolder.FullName);
-                        }
-
-                    }
-                    finally
-                    {
-                        EditorUtility.ClearProgressBar();
-                    }
-
+                    fvtcDir.Create();
                 }
-                finally
+
+                var localMrtkRepo = new DirectoryInfo(Path.Combine(fvtcDir.FullName, LOCAL_MRTK_REPO_FILE_NAME));
+
+                if (localMrtkRepo.Exists)
                 {
-                    // delete temp directory
-                    tempDir.Refresh();
-                    if (tempDir.Exists)
-                    {
-                        Delete(tempDir);
-                    }
+                    // do a git-fetch to update the repo from remote
+                    GitFetch(gitExePath, localMrtkRepo);
                 }
+                else
+                {
+                    // do a git clone --bare to the file
+                    GitCloneBare(gitExePath, MRTK_GITHUB_URL, localMrtkRepo.FullName);
+                }
+                
+                var unityAssetsDir = new DirectoryInfo(Application.dataPath);
+
+                GitCheckoutBranchToDir(gitExePath, branch, localMrtkRepo, unityAssetsDir.Parent, folders.Select(f => "Assets/" + f).ToArray());
+                
 
                 PlayerSettings.allowUnsafeCode = true;
 
                 AssetDatabase.Refresh();
+            }
+        }
+
+        private static void GitFetch(string gitExePath, DirectoryInfo repo)
+        {
+            // clone MRTK to temp dir
+            ProcessStartInfo gitFetch = new ProcessStartInfo(gitExePath);
+
+            gitFetch.UseShellExecute = false;
+            gitFetch.Arguments = string.Format("fetch");
+            gitFetch.RedirectStandardError = true;
+            gitFetch.CreateNoWindow = true;
+            gitFetch.WorkingDirectory = repo.FullName;
+
+            try
+            {
+                EditorUtility.DisplayProgressBar("Updating from GitHub", "Updating from GitHub", 0.0f);
+
+                gitFetch.WindowStyle = ProcessWindowStyle.Hidden;
+
+                using (var cloneProcess = Process.Start(gitFetch))
+                {
+                    string cloneProgress;
+                    float clonePercent;
+                    bool showGeneralProgress;
+
+                    while (true)
+                    {
+                        cloneProgress = cloneProcess.StandardError.ReadLine();
+
+                        if (string.IsNullOrEmpty(cloneProgress))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            showGeneralProgress = true;
+
+                            foreach (var prefix in PREFIXES)
+                            {
+                                if (cloneProgress.StartsWith(prefix))
+                                {
+                                    if (float.TryParse(cloneProgress.Substring(prefix.Length).Trim().Split(' ')[0].TrimEnd('%'), out clonePercent))
+                                    {
+                                        clonePercent = clonePercent / 100f;
+
+                                        EditorUtility.DisplayProgressBar("Updating from GitHub", cloneProgress, clonePercent);
+                                        showGeneralProgress = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (showGeneralProgress)
+                            {
+                                EditorUtility.DisplayProgressBar("Updating from GitHub", cloneProgress, 0f);
+                            }
+                        }
+                    }
+
+                    cloneProcess.WaitForExit();
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
+        }
+
+        private static void GitCheckoutBranchToDir(string gitExePath, string branch, DirectoryInfo sourceDir, DirectoryInfo targetDir, string[] folders)
+        {
+            try
+            {
+                EditorUtility.DisplayProgressBar("Updating from GitHub", "Updating from GitHub", 0.0f);
+
+                for(int i = 0; i < folders.Length; ++i)
+                {
+                    EditorUtility.DisplayProgressBar(string.Format("Updating {0}", folders[i]), string.Format("Updating {0}", folders[i]), i / (float)folders.Length);
+
+                    // clone MRTK to temp dir
+                    ProcessStartInfo gitFetch = new ProcessStartInfo(gitExePath);
+
+                    gitFetch.UseShellExecute = false;
+                    gitFetch.Arguments = string.Format("--work-tree={0} checkout {1} -- {2}", targetDir.FullName, branch, folders[i]);
+                    gitFetch.RedirectStandardError = true;
+                    gitFetch.CreateNoWindow = true;
+                    gitFetch.WorkingDirectory = sourceDir.FullName;
+
+                    gitFetch.WindowStyle = ProcessWindowStyle.Hidden;
+
+                    using (var gitProcess = Process.Start(gitFetch))
+                    {
+                        string cloneProgress;
+                        
+                        while (true)
+                        {
+                            cloneProgress = gitProcess.StandardError.ReadLine();
+
+                            if (string.IsNullOrEmpty(cloneProgress))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                            }
+                        }
+
+                        gitProcess.WaitForExit();
+                    }
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
+        }
+
+        private static void GitCloneBare(string gitExePath, string remoteUrl, string targetPath)
+        {
+            // clone MRTK to temp dir
+            ProcessStartInfo gitClone = new ProcessStartInfo(gitExePath);
+
+            gitClone.UseShellExecute = false;
+            gitClone.Arguments = string.Format("clone --bare --progress {0} {1}", remoteUrl, targetPath);
+            gitClone.RedirectStandardError = true;
+            gitClone.CreateNoWindow = true;
+
+            try
+            {
+                EditorUtility.DisplayProgressBar("Cloning MRTK from GitHub", "Starting Clone Process", 0.0f);
+
+                gitClone.WindowStyle = ProcessWindowStyle.Hidden;
+
+                using (var cloneProcess = Process.Start(gitClone))
+                {
+                    string cloneProgress;
+                    float clonePercent;
+                    bool showGeneralProgress;
+
+                    while (true)
+                    {
+                        cloneProgress = cloneProcess.StandardError.ReadLine();
+
+                        if (string.IsNullOrEmpty(cloneProgress))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            showGeneralProgress = true;
+
+                            foreach (var prefix in PREFIXES)
+                            {
+                                if (cloneProgress.StartsWith(prefix))
+                                {
+                                    if (float.TryParse(cloneProgress.Substring(prefix.Length).Trim().Split(' ')[0].TrimEnd('%'), out clonePercent))
+                                    {
+                                        clonePercent = clonePercent / 100f;
+
+                                        EditorUtility.DisplayProgressBar("Cloning MRTK from GitHub", cloneProgress, clonePercent);
+                                        showGeneralProgress = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (showGeneralProgress)
+                            {
+                                EditorUtility.DisplayProgressBar("Cloning MRTK from GitHub", cloneProgress, 0f);
+                            }
+                        }
+                    }
+
+                    cloneProcess.WaitForExit();
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
             }
         }
 
