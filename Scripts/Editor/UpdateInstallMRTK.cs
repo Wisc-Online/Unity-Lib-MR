@@ -43,24 +43,45 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
         private static void UpdateInstallHoloToolkit()
         {
             UpdateMRTK("master", "HoloToolkit");
+
+            PlayerSettings.allowUnsafeCode = true;
+            
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Learning Innovations/Mixed Reality/Install HoloToolkit from GitHub (include examples)")]
         private static void UpdateInstallHoloToolkitWithExamples()
         {
             UpdateMRTK("master", "HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
+
+            PlayerSettings.allowUnsafeCode = true;
+            
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub")]
         private static void UpdateInstallMixedRealityToolkit()
         {
             UpdateMRTK("mrtk_release", "MixedRealityToolkit");
+
+            PlayerSettings.allowUnsafeCode = true;
+            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_4_6);
+            PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.WSA, ApiCompatibilityLevel.NET_4_6);
+
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub (include examples)")]
         private static void UpdateInstallMixedRealityToolkitWithExamples()
         {
             UpdateMRTK("mrtk_release", "MixedRealityToolkit", "MixedRealityToolkit-Examples");
+
+            PlayerSettings.allowUnsafeCode = true;
+
+            PlayerSettings.SetApiCompatibilityLevel(EditorUserBuildSettings.selectedBuildTargetGroup, ApiCompatibilityLevel.NET_4_6);
+            PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.WSA, ApiCompatibilityLevel.NET_4_6);
+
+            AssetDatabase.Refresh();
         }
 
         const string CHECKING_OUT_PREFIX = "Checking out files: ";
@@ -103,10 +124,6 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 
                 GitCheckoutBranchToDir(gitExePath, branch, localMrtkRepo, unityAssetsDir.Parent, folders.Select(f => "Assets/" + f).ToArray());
                 
-
-                PlayerSettings.allowUnsafeCode = true;
-
-                AssetDatabase.Refresh();
             }
         }
 
