@@ -207,7 +207,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
                     ProcessStartInfo gitFetch = new ProcessStartInfo(gitExePath);
 
                     gitFetch.UseShellExecute = false;
-                    gitFetch.Arguments = string.Format("--work-tree={0} checkout {1} -- {2}", targetDir.FullName, branch, folders[i]);
+                    gitFetch.Arguments = string.Format("--work-tree=\"{0}\" checkout \"{1}\" -- \"{2}\"", targetDir.FullName, branch, folders[i]);
                     gitFetch.RedirectStandardError = true;
                     gitFetch.CreateNoWindow = true;
                     gitFetch.WorkingDirectory = sourceDir.FullName;
