@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_WSA
 using UnityEngine.XR.WSA.Input;
+#endif
 
 namespace FVTC.LearningInnovations.Unity.MixedReality.Input
 {
@@ -23,7 +25,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Input
             HandManager.Instance.RemoveSource(this);
         }
 
-
+#if UNITY_WSA
         HandControllerType GetControllerType(InteractionSourceHandedness handedness)
         {
             switch (handedness)
@@ -35,8 +37,8 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Input
                 default:
                     return HandControllerType.Unknown;
             }
-
         }
+
 
         public IEnumerable<HandControllerInput> GetReading()
         {
@@ -84,12 +86,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Input
             }
         }
 
-        float GetAxis(string axisName)
-        {
-            return string.IsNullOrEmpty(axisName) ? 0f : UnityEngine.Input.GetAxis(axisName);
-        }
-
-        private Pose GetPose(InteractionSourceState sourceState)
+         private Pose GetPose(UnityEngine.XR.WSA.Input.InteractionSourceState sourceState)
         {
             Vector3 position;
             Quaternion rotation;
@@ -106,7 +103,18 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Input
 
             return new Pose(position, rotation);
         }
+#else
+        public IEnumerable<HandControllerInput> GetReading()
+        {
+        return new HandControllerInput[]{};
+        }
+#endif
 
+        float GetAxis(string axisName)
+        {
+            return string.IsNullOrEmpty(axisName) ? 0f : UnityEngine.Input.GetAxis(axisName);
+        }
+        
         private bool RotationIsValid(Quaternion newRotation)
         {
             return !float.IsNaN(newRotation.x) && !float.IsNaN(newRotation.y) && !float.IsNaN(newRotation.z) && !float.IsNaN(newRotation.w) &&
