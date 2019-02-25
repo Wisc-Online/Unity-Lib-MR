@@ -11,35 +11,17 @@ using FVTC.LearningInnovations.Unity.Editor;
 
 namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
 {
+
     public class UpdateInstallMRTKMenu
     {
 
         const string MRTK_GITHUB_URL = "https://github.com/Microsoft/MixedRealityToolkit-Unity.git";
-        const string UNITY_LIB_MR_GITHUB_URL = "https://github.com/Wisc-Online/Unity-Lib-MR.git";
         const string FVTC_LEARNING_INNOVATIONS_PROGRAMDATA_DIR_PATH = "FVTC\\LearningInnovations";
         const string LOCAL_MRTK_REPO_FILE_NAME = "MixedRealityToolkit-Unity.git";
 
-        [MenuItem("Learning Innovations/Mixed Reality/Update from GitHub")]
-        private static void Update()
-        {
-            if (GitHelper.UpdateSubmodule(UNITY_LIB_MR_GITHUB_URL))
-            {
-                AssetDatabase.Refresh();
-            }
-            else
-            {
-                Dialog.Close("Update Failed", "Updating from GitHub failed.  See console for details.");
-            }
-        }
+      
 
-        [MenuItem("Learning Innovations/Mixed Reality/Update from GitHub", true)]
-        private static bool ValidateUpdate()
-        {
-            return GitHelper.GetModules().Where(x => UNITY_LIB_MR_GITHUB_URL.Equals(x.Url.AbsoluteUri, StringComparison.OrdinalIgnoreCase)).Any();
-        }
-
-
-        [MenuItem("Learning Innovations/Mixed Reality/Install HoloToolkit from GitHub")]
+        [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install HoloToolkit from GitHub")]
         private static void UpdateInstallHoloToolkit()
         {
             UpdateMRTK("master", "HoloToolkit");
@@ -49,7 +31,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("Learning Innovations/Mixed Reality/Install HoloToolkit from GitHub (include examples)")]
+        [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install HoloToolkit from GitHub (include examples)")]
         private static void UpdateInstallHoloToolkitWithExamples()
         {
             UpdateMRTK("master", "HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
@@ -59,7 +41,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub")]
+        [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install MixedRealityToolkit from GitHub")]
         private static void UpdateInstallMixedRealityToolkit()
         {
             UpdateMRTK("mrtk_release", "MixedRealityToolkit");
@@ -71,7 +53,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("Learning Innovations/Mixed Reality/Install MixedRealityToolkit from GitHub (include examples)")]
+        [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install MixedRealityToolkit from GitHub (include examples)")]
         private static void UpdateInstallMixedRealityToolkitWithExamples()
         {
             UpdateMRTK("mrtk_release", "MixedRealityToolkit", "MixedRealityToolkit-Examples");
