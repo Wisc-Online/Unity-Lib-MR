@@ -24,7 +24,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
         [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install HoloToolkit from GitHub")]
         private static void UpdateInstallHoloToolkit()
         {
-            UpdateMRTK("master", "HoloToolkit");
+            UpdateMRTK("htk_release", "HoloToolkit");
 
             PlayerSettings.allowUnsafeCode = true;
             
@@ -34,7 +34,7 @@ namespace FVTC.LearningInnovations.Unity.MixedReality.Editor
         [MenuItem("Learning Innovations/Mixed Reality/MixedRealityToolkit/Install HoloToolkit from GitHub (include examples)")]
         private static void UpdateInstallHoloToolkitWithExamples()
         {
-            UpdateMRTK("master", "HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
+            UpdateMRTK("htk_release", "HoloToolkit", "HoloToolkit-Examples", "HoloToolkit-Preview");
 
             PlayerSettings.allowUnsafeCode = true;
             
